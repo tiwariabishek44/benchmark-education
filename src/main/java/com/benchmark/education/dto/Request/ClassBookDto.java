@@ -1,14 +1,15 @@
 package com.benchmark.education.dto.Request;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-public class AddSalesDto {
+public class ClassBookDto {
 
-    private int subjectId;
+    private String grade;
+    private String stream;
+    private String subject;
 }

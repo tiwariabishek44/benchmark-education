@@ -9,6 +9,7 @@ import lombok.Data;
 public class Book {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
 
     private int subjectId;

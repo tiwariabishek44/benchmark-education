@@ -11,7 +11,7 @@ public class SalesLedger {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private int studentId;
+    private String studentEmail;
     private int subjectId;
 
 }

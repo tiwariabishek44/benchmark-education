@@ -22,10 +22,10 @@ public class JwtUtils {
     private int refreshTokenExpirationMS = 1123200000;
 
 
-    public String getOtpToken(String username, String claimKey, Object claim){
+    public String getOtpToken(String otp,  String email){
+        String principal = otp+"_"+email;
         return Jwts.builder()
-                .setSubject(username)
-                .claim(claimKey, claim)
+                .setSubject(principal)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + otpTokenExpirationMS))
                 .signWith(SignatureAlgorithm.HS512, secretKey)

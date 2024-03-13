@@ -24,12 +24,18 @@ public class AccountPojo {
         // to encrypt password using bcrypt
         account.setPassword(passwordEncoder.encode(createAccountDto.getPassword()));
         account.setPhoneNumber(createAccountDto.getPhoneNumber());
-        account.setActive(true);
+        account.setIsActive(true);
         if(Account.AccountType.STUDENT.equals(createAccountDto.getAccountType())){
-            account.setVerified(true);
-            account.setStream(createAccountDto.getStream());
+            account.setIsVerified(true);
+            if(Account.Stream.SCIENCE.equals(createAccountDto.getStream())){
+                account.setStream(Account.Stream.SCIENCE);
+            } else{
+                account.setStream(Account.Stream.MANAGEMENT);
+            }
+
         } else {
-            account.setVerified(false);
+            account.setIsVerified(false);
+            account.setStream(null);
         }
         return account;
     }

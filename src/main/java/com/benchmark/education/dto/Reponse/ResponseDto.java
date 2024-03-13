@@ -9,13 +9,13 @@ import java.util.HashMap;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ResponseDto {
+public class ResponseDto<K> {
 
     private boolean success;
-    private Object data;
+    private K data;
     private String message;
 
-    public static ResponseDto Success(Object data, String message){
+    public static <T> ResponseDto<T> Success(T data, String message){
         ResponseDto success = new ResponseDto();
         success.setSuccess(true);
         success.setData(data);
@@ -27,7 +27,7 @@ public class ResponseDto {
         return success;
     }
 
-    public static ResponseDto Failure(Object data, String message){
+    public static <T> ResponseDto<T> Failure(T data, String message){
         ResponseDto failure = new ResponseDto();
         failure.setSuccess(false);
         failure.setData(data);

@@ -11,7 +11,7 @@ public class BookUtils {
             return Book.BookType.FREE;
         } else if ("PAID".equals(bookType)) {
             return Book.BookType.PAID;
-        } else if ("PUBLICATIONs".equals(bookType)) {
+        } else if ("PUBLICATIONS".equals(bookType)) {
             return Book.BookType.PUBLICATIONS;
         }
 

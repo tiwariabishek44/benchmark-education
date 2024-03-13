@@ -10,4 +10,7 @@ import java.util.List;
 public interface AccountRepository extends JpaRepository<Account, Integer> {
     List<Account> findByEmail(String email);
 
+    List<Account> findByEmailAndAccountType(String email, Account.AccountType admin);
+
+    List<Account> findByEmailIn(List<String> studentEmails);
 }

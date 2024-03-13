@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Account {
 
     @jakarta.persistence.Id
@@ -21,28 +22,30 @@ public class Account {
     @Column(unique = true)
     private String email;
 
-    @Nullable
+    @Column(nullable = true)
     private String phoneNumber;
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
     private String password;
 
-    @Nullable
+
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
-    @Nullable
+    @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private Stream stream;
 
+    @Column(nullable = true)
     private LocalDate createdDate;
 
-    @Nullable
-    private boolean isActive;
+    @Column(nullable = true)
+    private Boolean isActive;
 
-    @Nullable
-    private boolean isVerified;
+    @Column(nullable = true)
+    private Boolean isVerified;
 
     @PrePersist()
     public void setCreationDate(){
@@ -55,7 +58,7 @@ public class Account {
   }
 
   public enum Stream{
-    STUDENT, TEACHER;
+    SCIENCE, MANAGEMENT;
   }
 
 }

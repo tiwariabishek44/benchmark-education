@@ -20,7 +20,7 @@ public class CreateAccountDto {
     private String password;
     private Account.AccountType accountType;
     private Account.Stream stream;
-    private LocalDate createdDate;
-    private boolean isVerified;
+//    private LocalDate createdDate;
+//    private boolean isVerified;
 
 }

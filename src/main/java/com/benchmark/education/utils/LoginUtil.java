@@ -17,6 +17,6 @@ public class LoginUtil {
     public String getLoginHash(String username){
 
         String loginText = username+ "_" + LocalDate.now().toString();
-        return passwordEncoder.encode(username);
+        return passwordEncoder.encode(loginText);
     }
 }

@@ -12,4 +12,5 @@ public interface SubjectRepository extends JpaRepository<Subject, Integer> {
     List<Subject> findByGradeAndSubjectAndStream(String grade, String subject, String stream);
 
 
+    List<Subject> findByIdIn(List<Integer> subjectList);
 }

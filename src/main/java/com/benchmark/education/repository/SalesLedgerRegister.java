@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface SalesLedgerRegister extends JpaRepository<SalesLedger, Integer> {
-    List<SalesLedger> findByStudentIdAndSubjectId(int studentId, int subjectId);
+    List<SalesLedger> findByStudentEmailAndSubjectId(String studentEmail, int subjectId);
+
+    List<SalesLedger> findByStudentEmail(String email);
 }

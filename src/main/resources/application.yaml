@@ -21,3 +21,6 @@ spring:
     open-in-view: false # Set to true if you want to enable the OpenEntityManagerInViewInterceptor
 
 file-upload-location: /home/master-x/testing_benchmark/
+
+protected-file-location: /home/master-x/testing_benchmark/protected_files/
+public-file-location: /home/master-x/testing_benchmark/public_files/
