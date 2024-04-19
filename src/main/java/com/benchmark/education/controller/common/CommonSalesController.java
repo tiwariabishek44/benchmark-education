@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/common/sales")
+@RequestMapping("/api/open/common/sales")
 public class CommonSalesController {
 
     @Autowired
     private SalesLedgerService salesLedgerService;
 
-    @PostMapping("/add-enquery")
+    @PostMapping("/add-inquiry")
     public ResponseDto<String> addEnquiry(@RequestBody EcommerceInquiryDto dto){
       return this.salesLedgerService.addEnquiry(dto);
     }

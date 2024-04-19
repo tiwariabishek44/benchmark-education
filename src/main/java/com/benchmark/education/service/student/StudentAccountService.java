@@ -10,10 +10,7 @@ import com.benchmark.education.dto.Request.VerifyOtpDto;
 import com.benchmark.education.entity.Account;
 import com.benchmark.education.entity.LoginSession;
 import com.benchmark.education.entity.TemporaryAccount;
-import com.benchmark.education.exception.AccountCreationException;
-import com.benchmark.education.exception.LoginException;
-import com.benchmark.education.exception.TokenExpiredException;
-import com.benchmark.education.exception.WrongOtpException;
+import com.benchmark.education.exception.*;
 import com.benchmark.education.mapper.AccountPojo;
 import com.benchmark.education.repository.AccountRepository;
 import com.benchmark.education.repository.LoginSessionRepository;
@@ -64,12 +61,15 @@ public class StudentAccountService {
         }
 
         Account account =accountList.get(0);
+        if(!Account.AccountType.STUDENT.equals(account.getAccountType())){
+            throw new GenericWrongRequestException("You can not login as a student");
 
-        String passwordHash = passwordEncoder.encode(loginCredentials.getPassword());
-        String passwordHashFromDatabase = account.getPassword();
-        if(!passwordEncoder.matches(loginCredentials.getPassword(), account.getPassword())){
+        }
+        String passwordHash = account.getPassword();
+        System.out.println("password : " + loginCredentials.getPassword() +" : " +passwordHash);
+        if(!passwordEncoder.matches(loginCredentials.getPassword(), passwordHash)){
             // throw exception that password provided is wrong
-            throw new LoginException("Wrong Password");
+            throw new LoginException("Invalid Credential1");
         }
 
 
@@ -105,12 +105,14 @@ public class StudentAccountService {
         }
 
         Account account =accountList.get(0);
+        if(!Account.AccountType.STUDENT.equals(account.getAccountType())){
+            throw new GenericWrongRequestException("You can not login as a student");
+        }
+        String passwordHash = account.getPassword();
 
-        String passwordHash = passwordEncoder.encode(loginCredentials.getPassword());
-        String passwordHashFromDatabase = account.getPassword();
-        if(!passwordEncoder.matches(loginCredentials.getPassword(), account.getPassword())){
+        if(!passwordEncoder.matches(loginCredentials.getPassword(), passwordHash)){
             // throw exception that password provided is wrong
-            throw new LoginException("Wrong Password");
+            throw new LoginException("Invalid Credential");
         }
 
         String loginSessionString = loginUtil.getLoginHash(account.getEmail());
@@ -128,7 +130,11 @@ public class StudentAccountService {
         String refreshToken = jwtUtils.getRefreshToken(account.getEmail(), "account-type", accountType);
         LoginResponse studentLoginResponse = new LoginResponse(accessToken, refreshToken, loginSessionString);
         this.loginSessionRepository.save(loginSession);
+        System.out.println(StudentAccountService.class);
+        System.out.println(studentLoginResponse.toString());
+        System.out.println(StudentAccountService.class);
         return   ResponseDto.Success(studentLoginResponse, "Logged in successfully");
+
 
     }
 

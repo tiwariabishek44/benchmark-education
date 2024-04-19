@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -15,12 +17,19 @@ public class EcomerceEnquiry {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
 
-    @OneToOne(cascade = CascadeType.REFRESH)
-    @JoinColumn()
-    private Account account;
 
-    @OneToOne(cascade = CascadeType.REFRESH)
-    @JoinColumn()
-    private Book book;
+    private String name;
+    private String phoneNumber;
+
+   private int bookId;
     private String message;
+
+    private LocalDateTime datetime;
+
+    @PrePersist
+    private void setDateTime(){
+        this.datetime = LocalDateTime.now();
+        System.out.println(EcomerceEnquiry.class  +" : " + this.bookId);
+    }
+
 }

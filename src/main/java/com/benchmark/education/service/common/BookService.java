@@ -1,5 +1,6 @@
 package com.benchmark.education.service.common;
 
+import com.benchmark.education.dto.Reponse.EcommerceBookDto;
 import com.benchmark.education.dto.Reponse.ResponseDto;
 import com.benchmark.education.dto.Request.CreateSubjectDto;
 import com.benchmark.education.entity.Book;
@@ -71,6 +72,21 @@ public class BookService {
     public ResponseDto<List<Book>> getPublicationBooks(){
         List<Book> bookList = this.bookRepository.findByBookType(Book.BookType.PUBLICATIONS);
         return ResponseDto.Success(bookList, null);
+    }
+
+    public ResponseDto<EcommerceBookDto> getEcommerceBook(int id){
+        Optional<Book> bookOptional = this.bookRepository.findById(id);
+        if(bookOptional.isEmpty()){
+            throw new GenericWrongRequestException("no such book");
+        }
+
+        Book ecommerce = bookOptional.get();
+        EcommerceBookDto dto = new EcommerceBookDto();
+        dto.setName(ecommerce.getName());
+        dto.setDescription(ecommerce.getDescription());
+        dto.setPrice(ecommerce.getPrice());
+        dto.setFileLocation(ecommerce.getFileLocation());
+        return ResponseDto.Success(dto,"");
     }
 
 

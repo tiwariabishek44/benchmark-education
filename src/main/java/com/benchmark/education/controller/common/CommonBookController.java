@@ -1,6 +1,7 @@
 package com.benchmark.education.controller.common;
 
 
+import com.benchmark.education.dto.Reponse.EcommerceBookDto;
 import com.benchmark.education.dto.Reponse.ResponseDto;
 import com.benchmark.education.dto.Request.ClassBookDto;
 import com.benchmark.education.entity.Book;
@@ -37,5 +38,10 @@ public class CommonBookController {
     @GetMapping("/ecommerce/get-all")
     public ResponseDto<List<Book>> getPublicationBooks(){
         return this.bookService.getPublicationBooks();
+    }
+
+    @GetMapping("/ecommerce/get/{id}")
+    public ResponseDto<EcommerceBookDto> getEcommerceBook(@PathVariable("id") int id){
+       return this.bookService.getEcommerceBook(id);
     }
 }

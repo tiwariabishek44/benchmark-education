@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class LoginSession {
 
-    @Id
+   @Id
     private int userId;
 
     private String sessionHash;

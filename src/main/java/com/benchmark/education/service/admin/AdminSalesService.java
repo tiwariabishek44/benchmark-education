@@ -1,5 +1,6 @@
 package com.benchmark.education.service.admin;
 
+import com.benchmark.education.dto.Reponse.AccountResponseDto;
 import com.benchmark.education.dto.Reponse.ResponseDto;
 import com.benchmark.education.entity.Account;
 import com.benchmark.education.entity.EcomerceEnquiry;
@@ -30,23 +31,29 @@ public class AdminSalesService {
     private AccountRepository accountRepository;
 
 
-    public ResponseDto<List<Account>> getStudentsWithPurchase(){
+    public ResponseDto<List<AccountResponseDto>> getStudentsWithPurchase(){
         List<SalesLedger>  salesLedgerList = this.salesLedgerRegister.findAll();
-        List<String> studentEmails = salesLedgerList.stream().map(salesLedger -> salesLedger.getStudentEmail()).collect(Collectors.toList());
+        List<String> studentEmails = salesLedgerList.stream().map(salesLedger -> salesLedger.getStudentEmail()).filter(s -> s!=null).collect(Collectors.toList());
         List<Account> studentAccounts = this.accountRepository.findByEmailIn(studentEmails);
-        studentAccounts = studentAccounts.stream().map(studentAccount -> {
-            studentAccount.setPassword(null);
-            return studentAccount;
-        }).collect(Collectors.toList());
-        return ResponseDto.Success(studentAccounts, null);
+        List< AccountResponseDto> accountResponseDtoList = studentAccounts.stream().map(studentAccount -> {
+           AccountResponseDto accountResponseDto = AccountResponseDto.builder()
+                   .accountType(Account.AccountType.STUDENT)
+                   .name(studentAccount.getName())
+                   .email(studentAccount.getEmail())
+                   .phoneNumber(studentAccount.getPhoneNumber())
+                   .password("")
+                   .isActive(studentAccount.getIsActive())
+                   .isVerified(studentAccount.getIsVerified())
+                   .createdDate(studentAccount.getCreatedDate())
+                   .stream(studentAccount.getStream())
+                   .build();
+           return accountResponseDto;
+        }).toList();
+        return ResponseDto.Success(accountResponseDtoList, null);
     }
 
     public ResponseDto<List<EcomerceEnquiry>> getAllEnquiry(){
         List<EcomerceEnquiry> ecomerceEnquiryList = this.ecommerceInquiryRepository.findAll();
-        ecomerceEnquiryList = ecomerceEnquiryList.stream().map(ecomerceEnquiry -> {
-            ecomerceEnquiry.getAccount().setPassword(null);
-            return ecomerceEnquiry;
-        }). collect(Collectors.toList());
         return ResponseDto.Success(ecomerceEnquiryList, null);
     }
 

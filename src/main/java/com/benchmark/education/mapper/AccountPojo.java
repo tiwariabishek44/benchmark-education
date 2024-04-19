@@ -22,7 +22,7 @@ public class AccountPojo {
         account.setEmail(createAccountDto.getEmail());
         account.setAccountType(createAccountDto.getAccountType());
         // to encrypt password using bcrypt
-        account.setPassword(passwordEncoder.encode(createAccountDto.getPassword()));
+        account.setPassword(createAccountDto.getPassword());
         account.setPhoneNumber(createAccountDto.getPhoneNumber());
         account.setIsActive(true);
         if(Account.AccountType.STUDENT.equals(createAccountDto.getAccountType())){

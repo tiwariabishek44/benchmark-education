@@ -1,20 +1,22 @@
 package com.benchmark.education.service.common;
 
+import com.benchmark.education.dto.Reponse.LoginResponse1;
 import com.benchmark.education.dto.Reponse.OtpToken;
 import com.benchmark.education.dto.Reponse.ResponseDto;
 import com.benchmark.education.dto.Reponse.LoginResponse;
-import com.benchmark.education.dto.Request.CreateAccountDto;
-import com.benchmark.education.dto.Request.LoginCredentials;
-import com.benchmark.education.dto.Request.VerifyOtpDto;
+import com.benchmark.education.dto.Request.*;
 import com.benchmark.education.entity.Account;
+import com.benchmark.education.entity.ForgetPasswordTable;
 import com.benchmark.education.entity.TemporaryAccount;
 import com.benchmark.education.exception.*;
 import com.benchmark.education.mapper.AccountPojo;
 import com.benchmark.education.repository.AccountRepository;
+import com.benchmark.education.repository.ForgetPasswordTableRepository;
 import com.benchmark.education.repository.TemporaryAccountRepository;
 import com.benchmark.education.utils.JavaMailUtil;
 import com.benchmark.education.utils.JwtUtils;
 import jakarta.mail.MessagingException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,9 @@ public class AccountService {
     private final TemporaryAccountRepository temporaryAccountRepository;
     private final AccountPojo accountPojo;
     private final JavaMailUtil javaMailUtil;
+
+    @Autowired
+    private ForgetPasswordTableRepository forgetPasswordTableRepository;
 
     public AccountService(AccountRepository accountRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils, TemporaryAccountRepository temporaryAccountRepository, AccountPojo accountPojo, JavaMailUtil javaMailUtil) {
         this.accountRepository = accountRepository;
@@ -66,7 +71,9 @@ public class AccountService {
         }
         temporaryAccount.setName(dto.getName());
         temporaryAccount.setPhoneNumber(dto.getPhoneNumber());
-        temporaryAccount.setPassword(this.passwordEncoder.encode(dto.getPassword()));
+        String passHash = this.passwordEncoder.encode(dto.getPassword());
+        System.out.println("create Account: password: "+dto.getPassword() + " hash: " + passHash);
+        temporaryAccount.setPassword(passHash);
         temporaryAccount.setAccountType(dto.getAccountType());
         temporaryAccount.setStream(dto.getStream());
         this.temporaryAccountRepository.save(temporaryAccount);
@@ -105,6 +112,7 @@ public class AccountService {
         createAccountDto.setPhoneNumber(temporaryAccount.getPhoneNumber());
         createAccountDto.setAccountType(temporaryAccount.getAccountType());
         createAccountDto.setStream(temporaryAccount.getStream());
+
         return createAccount(createAccountDto);
     }
 
@@ -126,7 +134,7 @@ public class AccountService {
 
     }
 
-    public ResponseDto<LoginResponse> generalLogin(LoginCredentials loginCredentials){
+    public ResponseDto<LoginResponse1> generalLogin(LoginCredentials loginCredentials){
         List<Account> accountList = this.accountRepository.findByEmail(loginCredentials.getEmail());
         if(accountList.size()==0){
             // throw exception that there is no account for the provided email address
@@ -155,10 +163,8 @@ public class AccountService {
         String accessToken = jwtUtils.getAccessToken(account.getEmail(), "account-type", accountType);
         String refreshToken = jwtUtils.getRefreshToken(account.getEmail(), "account-type", accountType);
 
-        HashMap<String, String> result = new HashMap<>();
-        result.put("accessToken", accessToken);
-        result.put("refreshToken", refreshToken);
-        LoginResponse loginResponse = new LoginResponse(accessToken, refreshToken, null);
+
+        LoginResponse1 loginResponse = new LoginResponse1(accessToken, refreshToken, null,account.getIsVerified());
 
         //todo
 
@@ -172,8 +178,9 @@ public class AccountService {
             throw new WrongRefreshToken();
         }
         String username = this.jwtUtils.getUserNameFromJwtToken(refreshToken);
-        Account.AccountType accountType = (Account.AccountType) this.jwtUtils.getClaimFromJWTToken(refreshToken,"account-type");
-        String accessToken = this.jwtUtils.getAccessToken(username, "access-token", accountType);
+        Account account = this.accountRepository.findByEmail(username).get(0);
+     //   Account.AccountType accountType = (Account.AccountType) this.jwtUtils.getClaimFromJWTToken(refreshToken,"account-type");
+        String accessToken = this.jwtUtils.getAccessToken(username);
         HashMap<String, String> result =  new HashMap<>();
         result.put("accessToken", accessToken);
         LoginResponse loginResponse = new LoginResponse(accessToken, null, null);
@@ -183,4 +190,51 @@ public class AccountService {
         return ResponseDto.Success(loginResponse, null);
     }
 
+    public ResponseDto<String> forgetPassword1(ForgetPassword1Dto dto) throws MessagingException {
+        List<Account> accountList = this.accountRepository.findByEmail(dto.getEmail());
+        ForgetPasswordTable forgetPasswordTable;
+        if(accountList.size()==0){
+            return ResponseDto.Failure("","no such account exisr");
+        }
+        List<ForgetPasswordTable> forgetPasswordTableList = this.forgetPasswordTableRepository.findByEmail(dto.getEmail());
+
+        if(forgetPasswordTableList.size()==0){
+            forgetPasswordTable = new ForgetPasswordTable();
+            forgetPasswordTable.setEmail(dto.getEmail());
+            System.out.println(dto.getEmail() + AccountService.class);
+        }else{
+            forgetPasswordTable = forgetPasswordTableList.get(0);
+            System.out.println("xxxxx - xxxxx");
+        }
+        int otp = javaMailUtil.sendOtp(dto.getEmail());
+        forgetPasswordTable.setOtpCode(otp);
+        System.out.println(forgetPasswordTable.getEmail() + AccountService.class);
+        this.forgetPasswordTableRepository.save(forgetPasswordTable);
+       return ResponseDto.Success("","");
+    }
+
+    public ResponseDto<String> forgetPassword2(ForgetPassword2Dto dto){
+        List<ForgetPasswordTable> forgetPasswordTableList = this.forgetPasswordTableRepository.findByEmail(dto.getEmail());
+        if(forgetPasswordTableList.size()==0){
+            return ResponseDto.Failure("","no data");
+        }
+
+        ForgetPasswordTable forgetPasswordTable = forgetPasswordTableList.get(0);
+        int otpCode ;
+        try{
+            otpCode = Integer.parseInt(dto.getOtp());;
+
+        } catch (Exception e){
+            return ResponseDto.Failure("", "wrong otp");
+        }
+        if(forgetPasswordTable.getOtpCode()!=otpCode){
+            return  ResponseDto.Failure("", "");
+        }
+
+        List<Account> accountList = this.accountRepository.findByEmail(dto.getEmail());
+        Account account = accountList.get(0);
+        account.setPassword(this.passwordEncoder.encode(dto.getNewPassWord()));
+        this.accountRepository.save(account);
+        return ResponseDto.Success("","");
+    }
 }

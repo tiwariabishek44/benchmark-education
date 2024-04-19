@@ -17,9 +17,9 @@ public class JwtUtils {
 
 
     private int otpTokenExpirationMS = 600000;
-    private int accessTokenExpirationMS =107348957;
+    private int accessTokenExpirationMS = 5000000;
 
-    private int refreshTokenExpirationMS = 1123200000;
+    private int refreshTokenExpirationMS = 200000000;
 
 
     public String getOtpToken(String otp,  String email){
@@ -36,6 +36,15 @@ public class JwtUtils {
         return Jwts.builder()
                 .setSubject(username)
                 .claim(claimKey, claim)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + accessTokenExpirationMS))
+                .signWith(SignatureAlgorithm.HS512, secretKey)
+                .compact();
+    }
+
+    public String getAccessToken(String username){
+        return Jwts.builder()
+                .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + accessTokenExpirationMS))
                 .signWith(SignatureAlgorithm.HS512, secretKey)

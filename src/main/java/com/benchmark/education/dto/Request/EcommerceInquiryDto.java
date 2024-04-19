@@ -12,5 +12,7 @@ import lombok.Setter;
 public class EcommerceInquiryDto
 {
     private int bookId;
+    private String name;
+    private String phoneNumber;
     private String message;
 }

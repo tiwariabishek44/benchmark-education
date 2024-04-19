@@ -36,12 +36,12 @@ public class SalesLedgerService {
 
     public ResponseDto<String> addEnquiry( EcommerceInquiryDto dto){
         Book book = this.bookRepository.findById(dto.getBookId()).orElse(null);
-        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<Account> accountList = this.accountRepository.findByEmail(email);
         EcomerceEnquiry ecomerceEnquiry = new EcomerceEnquiry();
         ecomerceEnquiry.setMessage(dto.getMessage());
-        ecomerceEnquiry.setBook(book);
-        ecomerceEnquiry.setAccount(accountList.get(0));
+        System.out.println(SalesLedgerService.class + " : " + book.getId());
+        ecomerceEnquiry.setBookId(book.getId());
+        ecomerceEnquiry.setName(dto.getName());
+        ecomerceEnquiry.setPhoneNumber(dto.getPhoneNumber());
         this.ecommerceInquiryRepository.save(ecomerceEnquiry);
         return ResponseDto.Success("", null);
 

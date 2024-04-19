@@ -74,7 +74,7 @@ public class JavaMailUtil {
                 "\n" +
                 "</html>\n";
         sendOtpMessage(recipient, "Otp Verification",template);
-        System.out.print("hitted");
+
         return otp;
     }
 
