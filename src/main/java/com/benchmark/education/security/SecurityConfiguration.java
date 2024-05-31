@@ -41,6 +41,7 @@ public class SecurityConfiguration {
                     .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                     .requestMatchers("/api/common/**").hasAuthority("COMMON")
                     .requestMatchers("/files/protected/**").hasAuthority("PROTECTED_RESOURCE")
+                    .requestMatchers("/files/manual/**").hasAuthority("PROTECTED_RESOURCE")
                     .requestMatchers("/files/public/**").permitAll()
                     .requestMatchers("/api/open/**").permitAll()
                     .anyRequest().permitAll();

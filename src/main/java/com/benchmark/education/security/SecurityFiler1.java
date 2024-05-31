@@ -1,15 +1,8 @@
 package com.benchmark.education.security;
 
 import com.benchmark.education.dto.Reponse.ResponseDto;
-import com.benchmark.education.entity.Account;
-import com.benchmark.education.entity.Book;
-import com.benchmark.education.entity.LoginSession;
-import com.benchmark.education.entity.SalesLedger;
-import com.benchmark.education.exception.UnAuthorizedException;
-import com.benchmark.education.repository.AccountRepository;
-import com.benchmark.education.repository.BookRepository;
-import com.benchmark.education.repository.LoginSessionRepository;
-import com.benchmark.education.repository.SalesLedgerRegister;
+import com.benchmark.education.entity.*;
+import com.benchmark.education.repository.*;
 import com.benchmark.education.utils.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -17,7 +10,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,6 +35,12 @@ public class SecurityFiler1 extends OncePerRequestFilter {
 
     @Autowired
     BookRepository bookRepository;
+
+    @Autowired
+    ManualRepository manualRepository;
+
+    @Autowired
+    ManualLedgerRepository manualLedgerRepository;
 
     @Autowired
     AccountRepository accountRepository;
@@ -145,8 +143,22 @@ public class SecurityFiler1 extends OncePerRequestFilter {
         if( Account.AccountType.ADMIN.name().equals(accountType)){
             System.out.println(SecurityFiler1.class +" \nline: 97");
             return new SimpleGrantedAuthority("PROTECTED_RESOURCE");
-        } if(Account.AccountType.TEACHER.name().equals(accountType)){
+        } else
+        if(Account.AccountType.TEACHER.name().equals(accountType)){
             if(isVerified!=null && isVerified.booleanValue()==true){
+                String fileName = url.substring(url.lastIndexOf("/")+1);
+                if(url.contains("files/manual/"))
+                {
+                    List<Manual> manualList = this.manualRepository.findByFileLocation("/files/manual/"+ fileName);
+                    if(manualList.size()==0){
+                        return null;
+                    }
+                    Manual manual = manualList.get(0);
+                    List<ManualLedger> manualLedgerList = this.manualLedgerRepository.findByEmailAndManualId(email, manual.getId());
+                    if(manualList.size()==0){
+                        return null;
+                    }
+                }
                 return new SimpleGrantedAuthority("PROTECTED_RESOURCE");
             }
         }
@@ -159,7 +171,7 @@ public class SecurityFiler1 extends OncePerRequestFilter {
                 }
 
                 Book book = bookList.get(0);
-                List<SalesLedger> salesLedgerList = this.salesLedgerRegister.findByStudentEmailAndSubjectId(email, book.getSubjectId());
+                List<SalesLedger> salesLedgerList = this.salesLedgerRegister.findByEmailAndSubjectId(email, book.getSubjectId());
                 if(salesLedgerList.size()==0){
                     return null;
                 }

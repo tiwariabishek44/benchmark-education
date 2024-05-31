@@ -62,6 +62,20 @@ public class AdminBookController {
        return this.adminBookService.deleteBook(id);
     }
 
+    @PostMapping("/upload-manual")
+    public ResponseDto<String> uploadManual(@RequestParam("file") MultipartFile file ,
+                                          @RequestParam("name") String name,
+                                            @RequestParam("subjectId") int subjectId,
+                                          @RequestParam(name="description", defaultValue = "") String description) throws IOException {
+        return this.adminBookService.addManual(file, name, description, subjectId);
+
+    }
+
+    @DeleteMapping("/manual/delete/{id}")
+    public ResponseDto<String> deleteManual(@PathVariable("id") int id) throws IOException {
+        return this.adminBookService.deleteManual(id);
+    }
+
 
 
 }

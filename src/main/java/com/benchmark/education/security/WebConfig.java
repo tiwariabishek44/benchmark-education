@@ -11,6 +11,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${protected-file-location}")
     private String protectedFileLocation;
 
+    @Value("${manual-file-location}")
+    private String manualFileLocation;
+
     @Value("${public-file-location}")
     private String publicFIleLocation;
 
@@ -25,6 +28,9 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/files/protected/**") // Define the URL path to access the files
                 .addResourceLocations("file:"+protectedFileLocation); // Specify the local filesystem path
+
+        registry.addResourceHandler("/files/manual/**") // Define the URL path to access the files
+                .addResourceLocations("file:"+manualFileLocation); // Specify the local filesystem path
 
     }
 }

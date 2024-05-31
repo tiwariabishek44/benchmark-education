@@ -34,7 +34,7 @@ public class StudentBookService {
     public ResponseDto<List<Subject>> getPurchasedSubjects(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = (String) authentication.getPrincipal();
-        List<SalesLedger> salesLedgerList = this.salesLedgerRegister.findByStudentEmail(email);
+        List<SalesLedger> salesLedgerList = this.salesLedgerRegister.findByEmail(email);
         List<Integer> subjectList = salesLedgerList.stream().map(salesLedger -> salesLedger.getSubjectId()).collect(Collectors.toList());
         List<Subject> subjects = subjectRepository.findByIdIn(subjectList);
         return ResponseDto.Success(subjects,null);
@@ -42,13 +42,13 @@ public class StudentBookService {
 
     public ResponseDto<String> addToSalesLedger( AddSalesDto dto){
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<SalesLedger> salesLedgerList = this.salesLedgerRegister.findByStudentEmailAndSubjectId(email,dto.getSubjectId());
+        List<SalesLedger> salesLedgerList = this.salesLedgerRegister.findByEmailAndSubjectId(email,dto.getSubjectId());
         if(salesLedgerList.size()>0){
             return ResponseDto.Failure("", "You have already purchesed the course");
         }
 
         SalesLedger salesLedger = new SalesLedger();
-        salesLedger.setStudentEmail(email);
+        salesLedger.setEmail(email);
         salesLedger.setSubjectId(dto.getSubjectId());
         this.salesLedgerRegister.save(salesLedger);
         return ResponseDto.Success("", "Successfully Purchased");

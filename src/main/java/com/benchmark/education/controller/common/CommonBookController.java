@@ -5,6 +5,7 @@ import com.benchmark.education.dto.Reponse.EcommerceBookDto;
 import com.benchmark.education.dto.Reponse.ResponseDto;
 import com.benchmark.education.dto.Request.ClassBookDto;
 import com.benchmark.education.entity.Book;
+import com.benchmark.education.entity.Manual;
 import com.benchmark.education.entity.Subject;
 import com.benchmark.education.service.common.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,5 +44,10 @@ public class CommonBookController {
     @GetMapping("/ecommerce/get/{id}")
     public ResponseDto<EcommerceBookDto> getEcommerceBook(@PathVariable("id") int id){
        return this.bookService.getEcommerceBook(id);
+    }
+
+    @GetMapping("/subject/manual/get/{id}")
+    public ResponseDto<List<Manual>> getManualBySubject(@PathVariable("id") int subjectId){
+        return this.bookService.getManualBySubject(subjectId);
     }
 }

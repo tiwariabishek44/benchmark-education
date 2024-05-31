@@ -3,16 +3,13 @@ package com.benchmark.education.service.common;
 import com.benchmark.education.dto.Reponse.EcommerceBookDto;
 import com.benchmark.education.dto.Reponse.ResponseDto;
 import com.benchmark.education.dto.Request.CreateSubjectDto;
-import com.benchmark.education.entity.Book;
-import com.benchmark.education.entity.SalesLedger;
-import com.benchmark.education.entity.Subject;
+import com.benchmark.education.entity.*;
 import com.benchmark.education.exception.GenericWrongRequestException;
-import com.benchmark.education.repository.BookRepository;
-import com.benchmark.education.repository.SalesLedgerRegister;
-import com.benchmark.education.repository.SubjectRepository;
+import com.benchmark.education.repository.*;
 import com.benchmark.education.utils.BookUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -40,16 +38,40 @@ public class BookService {
     private String publicFIleLocation;
 
     @Autowired
+    private AccountRepository accountRepository;
+    @Autowired
     private  SubjectRepository subjectRepository;
 
     @Autowired
     private  BookRepository bookRepository;
+    @Autowired
+    private ManualRepository manualRepository;
 
     @Autowired
     private SalesLedgerRegister salesLedgerRegister;
 
 
     public ResponseDto<List<Subject>> getallSubject(){
+        if(SecurityContextHolder.getContext()!=null
+                && SecurityContextHolder.getContext().getAuthentication()!=null){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = (String) authentication.getPrincipal();
+        if(email!=null) {
+            List<Account> accountList = this.accountRepository.findByEmail(email);
+            if (!accountList.isEmpty()) {
+                if (accountList.get(0).getAccountType().name().equals(Account.AccountType.TEACHER.name())) {
+                    List<SalesLedger> salesLedgerList = this.salesLedgerRegister.findByEmail(email);
+                    List<Integer> subjectIdList = salesLedgerList.stream()
+                            .map(salesLedger -> salesLedger.getSubjectId()).collect(Collectors.toList());
+                    List<Subject> subjectList = this.subjectRepository.findByIdIn(subjectIdList);
+                    return ResponseDto.Success(subjectList, "");
+
+                }
+            }
+
+        }
+        }
+
         List<Subject> subjectList = this.subjectRepository.findAll();
         return ResponseDto.Success(subjectList, null);
     }
@@ -87,6 +109,11 @@ public class BookService {
         dto.setPrice(ecommerce.getPrice());
         dto.setFileLocation(ecommerce.getFileLocation());
         return ResponseDto.Success(dto,"");
+    }
+
+    public ResponseDto<List<Manual>> getManualBySubject(int subjectId){
+        List<Manual> manualList = this.manualRepository.findBySubjectId(subjectId);
+        return ResponseDto.Success(manualList , "");
     }
 
 
