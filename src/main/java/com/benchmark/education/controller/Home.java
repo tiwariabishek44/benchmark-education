@@ -24,9 +24,9 @@ public class Home {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    @GetMapping
-    public String home(){
-        return passwordEncoder.encode("1234567890");
-    }
+//    @GetMapping
+//    public String home(){
+//        return "index.html";
+//    }
 
 }

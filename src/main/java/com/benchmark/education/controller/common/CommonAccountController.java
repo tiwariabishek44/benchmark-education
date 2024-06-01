@@ -1,6 +1,6 @@
 package com.benchmark.education.controller.common;
 
-import com.benchmark.education.dto.Reponse.LoginResponse;
+import com.benchmark.education.dto.Reponse.AccessTokenResponse;
 import com.benchmark.education.dto.Reponse.LoginResponse1;
 import com.benchmark.education.dto.Reponse.OtpToken;
 import com.benchmark.education.dto.Reponse.ResponseDto;
@@ -37,7 +37,7 @@ public class CommonAccountController {
     }
 
     @PostMapping("/access-token/refresh")
-    public ResponseDto<LoginResponse> getAccessTokenFromRefreshToken(@RequestBody RefreshAccessTokenDto dto)
+    public ResponseDto<AccessTokenResponse> getAccessTokenFromRefreshToken(@RequestBody RefreshAccessTokenDto dto)
     {
         return this.accountService.getAccessTokenFromRefreshToken(dto.getRefreshToken());
     }

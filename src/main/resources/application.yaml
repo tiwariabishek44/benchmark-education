@@ -25,3 +25,4 @@ file-upload-location: /home/master-x/testing_benchmark/
 protected-file-location: /home/master-x/testing_benchmark/protected_files/
 public-file-location: /home/master-x/testing_benchmark/public_files/
 manual-file-location: /home/master-x/testing_benchmark/manual_files/
+react-file-location: /home/master-x/testing_benchmark/react_files/

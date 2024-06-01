@@ -1,15 +1,11 @@
-package com.benchmark.education.service.student;
+package com.benchmark.education.service.common;
 
-import com.benchmark.education.dto.Reponse.LoginResponse;
-import com.benchmark.education.dto.Reponse.OtpToken;
+import com.benchmark.education.dto.Reponse.AccessTokenResponse;
 import com.benchmark.education.dto.Reponse.ResponseDto;
-import com.benchmark.education.dto.Request.AddSalesDto;
-import com.benchmark.education.dto.Request.CreateAccountDto;
+import com.benchmark.education.dto.Reponse.StudentAndTeacherLoginResponse;
 import com.benchmark.education.dto.Request.LoginCredentials;
-import com.benchmark.education.dto.Request.VerifyOtpDto;
 import com.benchmark.education.entity.Account;
 import com.benchmark.education.entity.LoginSession;
-import com.benchmark.education.entity.TemporaryAccount;
 import com.benchmark.education.exception.*;
 import com.benchmark.education.mapper.AccountPojo;
 import com.benchmark.education.repository.AccountRepository;
@@ -18,7 +14,6 @@ import com.benchmark.education.repository.TemporaryAccountRepository;
 import com.benchmark.education.utils.JavaMailUtil;
 import com.benchmark.education.utils.JwtUtils;
 import com.benchmark.education.utils.LoginUtil;
-import jakarta.mail.MessagingException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +23,7 @@ import java.util.Optional;
 
 @Service
 @Transactional
-public class StudentAccountService {
+public class StudentAndTeacherAccountService {
 
     private final AccountRepository accountRepository;
     private final LoginSessionRepository loginSessionRepository;
@@ -39,7 +34,7 @@ public class StudentAccountService {
     private final JavaMailUtil javaMailUtil;
     private final TemporaryAccountRepository temporaryAccountRepository;
 
-    public StudentAccountService(AccountRepository accountRepository, LoginSessionRepository loginSessionRepository, AccountPojo accountPojo, PasswordEncoder passwordEncoder, LoginUtil loginUtil, JwtUtils jwtUtils, JavaMailUtil javaMailUtil, TemporaryAccountRepository temporaryAccountRepository) {
+    public StudentAndTeacherAccountService(AccountRepository accountRepository, LoginSessionRepository loginSessionRepository, AccountPojo accountPojo, PasswordEncoder passwordEncoder, LoginUtil loginUtil, JwtUtils jwtUtils, JavaMailUtil javaMailUtil, TemporaryAccountRepository temporaryAccountRepository) {
         this.accountRepository = accountRepository;
         this.loginSessionRepository = loginSessionRepository;
         this.accountPojo = accountPojo;
@@ -52,7 +47,7 @@ public class StudentAccountService {
 
 
 
-    public ResponseDto<String> studentFirstLoginAttempt(LoginCredentials loginCredentials) throws Throwable {
+    public ResponseDto<String> firstLoginAttempt(LoginCredentials loginCredentials) throws Throwable {
         List<Account> accountList = this.accountRepository.findByEmail(loginCredentials.getEmail());
         if(accountList.size()==0){
             // throw exception
@@ -61,8 +56,8 @@ public class StudentAccountService {
         }
 
         Account account =accountList.get(0);
-        if(!Account.AccountType.STUDENT.equals(account.getAccountType())){
-            throw new GenericWrongRequestException("You can not login as a student");
+        if(Account.AccountType.ADMIN.equals(account.getAccountType())){
+            throw new GenericWrongRequestException("Can't login using admin account");
 
         }
         String passwordHash = account.getPassword();
@@ -71,11 +66,7 @@ public class StudentAccountService {
             // throw exception that password provided is wrong
             throw new LoginException("Invalid Credential1");
         }
-
-
         return hasActiveLoginSession(account.getId());
-
-
     }
 
     public ResponseDto<String> hasActiveLoginSession(int id) throws Throwable {
@@ -97,7 +88,7 @@ public class StudentAccountService {
         return ResponseDto.Failure("", "an active session exists");
     }
 
-    public ResponseDto<LoginResponse> doStudentLogin(LoginCredentials loginCredentials) throws Throwable {
+    public ResponseDto<StudentAndTeacherLoginResponse> doLogin(LoginCredentials loginCredentials) throws Throwable {
         List<Account> accountList = this.accountRepository.findByEmail(loginCredentials.getEmail());
         if(accountList.size()==0){
             // throw exception
@@ -105,8 +96,8 @@ public class StudentAccountService {
         }
 
         Account account =accountList.get(0);
-        if(!Account.AccountType.STUDENT.equals(account.getAccountType())){
-            throw new GenericWrongRequestException("You can not login as a student");
+        if(!Account.AccountType.ADMIN.equals(account.getAccountType())){
+            throw new GenericWrongRequestException("Can't login using an Admin email");
         }
         String passwordHash = account.getPassword();
 
@@ -125,15 +116,22 @@ public class StudentAccountService {
             loginSession.setUserId(account.getId());
         }
         loginSession.setSessionHash(loginSessionString);
-        Account.AccountType accountType = Account.AccountType.STUDENT;
+        Account.AccountType accountType = account.getAccountType();
+        boolean isStudent = false;
+        boolean isAccoundVerified = false;
+        if(accountType.name().equals(Account.AccountType.STUDENT.name())){
+            isStudent = true;
+            isAccoundVerified = true;
+        }else{
+            isAccoundVerified = account.getIsVerified();
+        }
         String accessToken = jwtUtils.getAccessToken(account.getEmail(), "account-type", accountType);
         String refreshToken = jwtUtils.getRefreshToken(account.getEmail(), "account-type", accountType);
-        LoginResponse studentLoginResponse = new LoginResponse(accessToken, refreshToken, loginSessionString);
+
+
+        StudentAndTeacherLoginResponse loginResponse = new StudentAndTeacherLoginResponse(accessToken, refreshToken, loginSessionString, isStudent, isAccoundVerified);
         this.loginSessionRepository.save(loginSession);
-        System.out.println(StudentAccountService.class);
-        System.out.println(studentLoginResponse.toString());
-        System.out.println(StudentAccountService.class);
-        return   ResponseDto.Success(studentLoginResponse, "Logged in successfully");
+        return   ResponseDto.Success(loginResponse, "Logged in successfully");
 
 
     }

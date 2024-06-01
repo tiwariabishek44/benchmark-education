@@ -3,7 +3,7 @@ package com.benchmark.education.service.common;
 import com.benchmark.education.dto.Reponse.LoginResponse1;
 import com.benchmark.education.dto.Reponse.OtpToken;
 import com.benchmark.education.dto.Reponse.ResponseDto;
-import com.benchmark.education.dto.Reponse.LoginResponse;
+import com.benchmark.education.dto.Reponse.AccessTokenResponse;
 import com.benchmark.education.dto.Request.*;
 import com.benchmark.education.entity.Account;
 import com.benchmark.education.entity.ForgetPasswordTable;
@@ -171,7 +171,7 @@ public class AccountService {
        return ResponseDto.Success(loginResponse, "Successfully Logged In");
     }
 
-    public ResponseDto<LoginResponse> getAccessTokenFromRefreshToken(String refreshToken){
+    public ResponseDto<AccessTokenResponse> getAccessTokenFromRefreshToken(String refreshToken){
         boolean isTokenValid = this.jwtUtils.validateJwtToken(refreshToken);
         if(!isTokenValid){
             // handle invalid token. send redirection command for login
@@ -183,7 +183,7 @@ public class AccountService {
         String accessToken = this.jwtUtils.getAccessToken(username);
         HashMap<String, String> result =  new HashMap<>();
         result.put("accessToken", accessToken);
-        LoginResponse loginResponse = new LoginResponse(accessToken, null, null);
+        AccessTokenResponse loginResponse = new AccessTokenResponse(accessToken, null, null);
 
         //todo
 

@@ -17,6 +17,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${public-file-location}")
     private String publicFIleLocation;
 
+    @Value("${react-file-location}")
+    private String reactFileLocation;
+
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -31,6 +34,8 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/files/manual/**") // Define the URL path to access the files
                 .addResourceLocations("file:"+manualFileLocation); // Specify the local filesystem path
+
+
 
     }
 }

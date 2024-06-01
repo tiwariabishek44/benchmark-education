@@ -59,13 +59,9 @@ public class SecurityFiler1 extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = extractJwtToken(request);
-        System.out.println(accessToken + " : " + SecurityFiler1.class);
-        System.out.println( request.getRequestURL().toString());
-        boolean invalidStudentSession = false;
-
+        boolean invalidStudentAndTeacherSession = false;
         if((accessToken != null) && (this.jwtUtils.validateJwtToken(accessToken)) ){
             StringBuffer requestURL = request.getRequestURL();
-
             // Get the query string (if any)
             String queryString = request.getQueryString();
 
@@ -91,28 +87,26 @@ public class SecurityFiler1 extends OncePerRequestFilter {
                 Authentication authentication = new UsernamePasswordAuthenticationToken(email, null , authorities);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
-
-
                 //for examining if an invalid student login session  SessionHash
                 String sessionHash = request.getHeader("SessionHash");
                 if(sessionHash== null){
                     sessionHash = "";
                 }
-                if(Account.AccountType.STUDENT.name().equals(account.get(0).getAccountType().name())){
-                    invalidStudentSession = !this.isActiveSession(account.get(0).getId(),sessionHash);
+                if(!(Account.AccountType.ADMIN.name().equals(account.get(0).getAccountType().name()))){
+                    invalidStudentAndTeacherSession = !this.isActiveSession(account.get(0).getId(),sessionHash);
                 }
 
             }
 
         }
 
-        // Add CORS headers to allow all origins, methods, and headers (for demonstration purposes)
+        // Add CORS headers to allow all origins, methods, and headers
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-        // to check if it is invalid student login
-        if(invalidStudentSession){
+        // to check if it is invalid student and teacher login
+        if(invalidStudentAndTeacherSession){
             // Create the custom error response
             ResponseDto<String> errorResponse = ResponseDto.Failure("","You are trying to" +
                     " access protected resource");
@@ -124,7 +118,8 @@ public class SecurityFiler1 extends OncePerRequestFilter {
             response.setStatus(RELOGIN_STATUS);
             response.setContentType("application/json");
             response.getWriter().write(jsonResponse);
-        }else{
+        }
+        else{
             filterChain.doFilter(request, response);
         }
 
