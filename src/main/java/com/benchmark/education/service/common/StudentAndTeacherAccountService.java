@@ -96,7 +96,7 @@ public class StudentAndTeacherAccountService {
         }
 
         Account account =accountList.get(0);
-        if(!Account.AccountType.ADMIN.equals(account.getAccountType())){
+        if(Account.AccountType.ADMIN.name().equals(account.getAccountType().name())){
             throw new GenericWrongRequestException("Can't login using an Admin email");
         }
         String passwordHash = account.getPassword();
