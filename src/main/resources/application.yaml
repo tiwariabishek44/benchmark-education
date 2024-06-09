@@ -2,8 +2,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/BENCHMARK?createDatabaseIfNotExist=true
-    username: benchmark
-    password: mySql!245
+
 
   jpa:
     hibernate:
@@ -13,6 +12,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        generate_statistics: true # Enable Hibernate statistics to log SQL and other information
       javax:
         persistence:
           validation:
@@ -20,9 +20,29 @@ spring:
 
     open-in-view: false # Set to true if you want to enable the OpenEntityManagerInViewInterceptor
 
-file-upload-location: /home/master-x/testing_benchmark/
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug # Enable SQL logging
+        type:
+          descriptor:
+            sql: trace # Log SQL parameter values
+      springframework:
+        data:
+          jpa:
+            show-sql: debug # Show SQL statements
+  file:
+    name: /home/ec2-user/benchmark_files/applicationlogfile.log # Update this with your desired log file path
 
-protected-file-location: /home/master-x/testing_benchmark/protected_files/
-public-file-location: /home/master-x/testing_benchmark/public_files/
-manual-file-location: /home/master-x/testing_benchmark/manual_files/
-react-file-location: /home/master-x/testing_benchmark/react_files/
+
+
+
+
+manual-file-location: /home/ec2-user/benchmark_files/manual_files/
+react-file-location: /home/ec2-user/benchmark_files/react_files/
+
+file-upload-location: /home/ec2-user/benchmark_files/
+
+protected-file-location: /home/ec2-user/benchmark_files/private_files/
+public-file-location: /home/ec2-user/benchmark_files/public_files/

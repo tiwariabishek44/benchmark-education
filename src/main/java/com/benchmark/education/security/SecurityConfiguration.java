@@ -49,7 +49,9 @@ public class SecurityConfiguration {
         });
         httpSecurity.addFilterBefore(securityFiler1, UsernamePasswordAuthenticationFilter.class);
         httpSecurity.csrf().disable();
-        httpSecurity.cors();
+        httpSecurity.cors(httpSecurityCorsConfigurer -> {
+            httpSecurityCorsConfigurer.configure(httpSecurity);
+        });
 
         httpSecurity.exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
                 httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(commonAuthenticationEntryPoint));
@@ -62,10 +64,9 @@ public class SecurityConfiguration {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Arrays.asList("http://localhost:5173/"));// Allow all origins
+        config.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // Replace with your frontend origin
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
-
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }

@@ -58,6 +58,13 @@ public class SecurityFiler1 extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // Add CORS headers to allow all origins, methods, and headers
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+
+
         String accessToken = extractJwtToken(request);
         boolean invalidStudentAndTeacherSession = false;
         if((accessToken != null) && (this.jwtUtils.validateJwtToken(accessToken)) ){
@@ -100,10 +107,6 @@ public class SecurityFiler1 extends OncePerRequestFilter {
 
         }
 
-        // Add CORS headers to allow all origins, methods, and headers
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
         // to check if it is invalid student and teacher login
         if(invalidStudentAndTeacherSession){
@@ -121,6 +124,8 @@ public class SecurityFiler1 extends OncePerRequestFilter {
         }
         else{
             filterChain.doFilter(request, response);
+//
+
         }
 
     }

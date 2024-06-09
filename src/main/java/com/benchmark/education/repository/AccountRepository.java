@@ -15,4 +15,6 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
     List<Account> findByEmailIn(List<String> studentEmails);
 
     List<Account> findByAccountTypeAndIsVerified(Account.AccountType teacher, boolean b);
+
+    List<Account> findByAccountTypeAndEmailIn(Account.AccountType accountType, List<String> emailList);
 }

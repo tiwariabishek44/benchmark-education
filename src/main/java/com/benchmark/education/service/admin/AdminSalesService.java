@@ -41,7 +41,7 @@ public class AdminSalesService {
     public ResponseDto<List<AccountResponseDto>> getStudentsWithPurchase(){
         List<SalesLedger>  salesLedgerList = this.salesLedgerRegister.findAll();
         List<String> studentEmails = salesLedgerList.stream().map(salesLedger -> salesLedger.getEmail()).filter(s -> s!=null).collect(Collectors.toList());
-        List<Account> studentAccounts = this.accountRepository.findByEmailIn(studentEmails);
+        List<Account> studentAccounts = this.accountRepository.findByAccountTypeAndEmailIn(Account.AccountType.STUDENT,studentEmails);
         List< AccountResponseDto> accountResponseDtoList = studentAccounts.stream().map(studentAccount -> {
            AccountResponseDto accountResponseDto = AccountResponseDto.builder()
                    .accountType(Account.AccountType.STUDENT)
