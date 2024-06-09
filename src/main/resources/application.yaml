@@ -2,7 +2,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/BENCHMARK?createDatabaseIfNotExist=true
-
+    username: masterworkeruser
+    password: Verx6578Meu*^sa
 
   jpa:
     hibernate:
